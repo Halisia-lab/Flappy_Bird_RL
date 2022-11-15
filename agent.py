@@ -3,10 +3,9 @@ import arcade
 import tools
 import pickle
 
-import environment
-
-class Agent:
-    def __init__(self, env, alpha=1, gamma=0.3):
+class Agent(arcade.AnimatedTimeBasedSprite):
+    def __init__(self, env, center_x, center_y, alpha=1, gamma=0.3):
+        super().__init__()
         self.__qtable = {}
         for state in env.states:
             self.__qtable[state] = {}
@@ -15,6 +14,8 @@ class Agent:
         self.__env = env
         self.__alpha = alpha
         self.__gamma = gamma
+        self.__center_x = center_x
+        self.__center_y = center_y
         self.__history = []
         self.reset(False)
         self.texture = arcade.load_texture(tools.BIRD)
@@ -23,6 +24,8 @@ class Agent:
         if store_history:
             self.__history.append(self.__score)
         self.__state = self.__env.start
+
+        self.__center_x, self.__center_y = (50, 256)
         self.__score = 0
 
     def best_action(self):
@@ -40,9 +43,14 @@ class Agent:
 
         self.__state = state
         self.__score += reward
-
+        print(reward)
         return action_all, reward
 
+    def set_score(self, score):
+        self.__score = score
+
+    def set_state(self, state):
+        self.__state = state
     @property
     def state(self):
         return self.__state

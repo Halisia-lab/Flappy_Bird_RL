@@ -5,7 +5,7 @@ import wall
 
 
 class Environment:
-    def __init__(self, str_map):
+    def __init__(self):
         row = 0
         col = 0
         self.__states = {}
@@ -15,7 +15,7 @@ class Environment:
                 self.__states[i, j] = (i, j)
 
         self.__start = (50, 256)
-        self.__goal = 10
+        self.__reward_goal = 10
 
 
         self.__reward_wall_passed = len(self.__states)
@@ -31,7 +31,7 @@ class Environment:
         # check ground + sky
 
         if new_state not in self.__states:
-            reward = self.__reward_wall
+            reward = self.__reward_wall_crashed
 
             # if new_state not in self.states \
             #         or self.__states[new_state] in [tools.MAP_WALL, tools.MAP_GROUND]:
@@ -60,7 +60,7 @@ class Environment:
 
     @property
     def goal(self):
-        return self.__goal
+        return self.__reward_goal
 
 
 

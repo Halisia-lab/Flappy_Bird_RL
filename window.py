@@ -1,4 +1,5 @@
 import arcade
+import random
 
 import tools
 import wall
@@ -28,13 +29,12 @@ class Window(arcade.Window):
         self.sprites = dict()
         self.sprites['background'] = self.background
         self.sprites['ground'] = self.ground
-        self.sprites['agent'] = self.agent
+        self.sprites['agent'] = self.__agent
 
         first_wall = wall.Wall.create_new_wall(self.sprites, self.height)
         self.walls_sprites.append(first_wall[0])
         self.walls_sprites.append(first_wall[1])
-
-        ####
+        self.agent_list.append(self.__agent)
     #
     #     self.__ground = arcade.SpriteList()
     #     for state in filter(self.__agent.environment.is_ground,
@@ -63,6 +63,15 @@ class Window(arcade.Window):
     # def state_to_xy(self, state):
     #     return (state[1] + 0.5) * tools.SPRITE_SIZE, \
     #            (self.__agent.environment.height - state[0] - 0.5) * tools.SPRITE_SIZE
+
+    def reset(self):
+        self.__agent.reset()
+
+        self.walls_sprites = arcade.SpriteList()
+        first_wall = wall.Wall.create_new_wall(self.sprites, self.height)
+        self.walls_sprites.append(first_wall[0])
+        self.walls_sprites.append(first_wall[1])
+
     def draw_background(self):
         arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.background.width, self.background.height,
                                       self.background, 0)
@@ -79,33 +88,33 @@ class Window(arcade.Window):
         self.agent_list.draw()
 
     def on_update(self, delta_time):
+        # Horizontal scrolling
+        new_wall = None
         for wall in self.walls_sprites:
             wall.step()
             if wall.right <= 0:
                 wall.kill()
-
             elif len(self.walls_sprites) == 2 and wall.right <= random.randrange(self.width // 2, self.width // 2 + 15):
                 new_wall = wall.create_new_wall(self.sprites, self.height)
 
         wall_crash = arcade.check_for_collision_with_list(self.__agent, self.walls_sprites)
-
         if new_wall:
             self.walls_sprites.append(new_wall[0])
             self.walls_sprites.append(new_wall[1])
-
         self.walls_sprites.update()
         #self.agent.update(delta_time)
         self.agent_list.update()
 
+        # If bird hits a pipe
         if wall_crash:
-            self.__agent.reset()
+            self.reset()
             self.__iteration += 1
 
+        # If bird passes one wall (through the pipes gap)
         if self.__agent.state[1] >= self.walls_sprites[0].center_x and not self.walls_sprites[0].agent_passed:
-            self.__agent.score += 1
+            self.__agent.set_score = self.__agent.score + 1
             self.walls_sprites[0].agent_passed = True
             self.walls_sprites[1].agent_passed = True
-
             #reward = 300
 
         if self.__agent.score != self.__agent.environment.goal:
@@ -115,5 +124,6 @@ class Window(arcade.Window):
             self.__iteration += 1
             # self.__sound.play()
 
+        self.__agent.center_x, self.__agent.center_y = self.__agent.state
         # self.__player.center_x, self.__player.center_y \
         #     = self.__agent.state

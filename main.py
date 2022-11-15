@@ -11,9 +11,10 @@ import matplotlib.pyplot as plt
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-    env = environment.Environment(tools.ENV)
-    print(f'Number of states {len(env.states) * 4}')
-    agent = agent.Agent(env)
+    #env = environment.Environment(tools.ENV)
+    env = environment.Environment()
+    print(f'Number of states {len(env.states) * 2}')
+    agent = agent.Agent(env, 50, 256)
 
     print(agent.state)
 
